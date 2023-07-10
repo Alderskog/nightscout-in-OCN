@@ -1,0 +1,61 @@
+# The Caddyfile is an easy way to configure your Caddy web server.
+#
+# Unless the file starts with a global options block, the first
+# uncommented line is always the address of your site.
+#
+# To use your own domain name (with automatic HTTPS), first make
+# sure your domain's A/AAAA DNS records are properly pointed to
+# this machine's public IP, then replace ":80" below with your
+# domain name.
+
+##GENERAL
+
+{
+	email address@domain.com
+}
+
+domain.com {
+	# Set this path to your site's directory.
+	root * /var/www/html
+
+	# Enable the static file server.
+	file_server
+
+	log {
+		output file /var/log/caddy/domain.com-access.log
+	}
+	# Another common task is to set up a reverse proxy:
+	# reverse_proxy localhost:8080
+
+	# Or serve a PHP site through php-fpm:
+	# php_fastcgi localhost:9000
+	#}
+}
+
+## INTERNAL BACKEND ROUTES
+
+authentik.domain.com {
+	reverse_proxy localhost:9000
+}
+
+nightscout.domain.com {
+	# always forward outpost path to actual outpost
+	reverse_proxy /outpost.goauthentik.io/* localhost:9000
+
+	# forward authentication to outpost
+	forward_auth localhost:9000 {
+		uri /outpost.goauthentik.io/auth/caddy
+
+		# capitalization of the headers is important, otherwise they will be empty
+		copy_headers X-Authentik-Username X-Authentik-Groups X-Authentik-Email X-Authentik-Name X-Authentik-Uid X-Authentik-Jwt X-Authentik-Meta-Jwks X-Authentik-Meta-Outpost X-Authentik-Meta-Provider X-Authentik-Meta-App X-Authentik-Meta-Version
+
+		# optional, in this config trust all private ranges, should probably be set to the outposts IP
+		trusted_proxies private_ranges
+	}
+
+	# actual site configuration below, for example
+	reverse_proxy localhost:1337
+}
+
+# Refer to the Caddy docs for more information:
+# https://caddyserver.com/docs/caddyfile
