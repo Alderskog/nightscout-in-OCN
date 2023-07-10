@@ -1,0 +1,24 @@
+version: '3.4'
+services:
+  nightscout:
+    image: nightscout/cgm-remote-monitor:latest
+    env_file: .env
+    ports:
+      - "1337:1337"
+    depends_on:
+      - mongo
+    volumes:
+      - ./:/var/opt/ssl/:ro
+    restart: always
+
+  mongo:
+    image: mongo:4.4.9
+    volumes:
+      - ./data:/data/db
+    ports:
+      - "27017:27017"
+      - "27018:27018"
+      - "27019:27019"
+      - "28017:28017"
+    restart: always
+
