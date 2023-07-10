@@ -19,7 +19,12 @@ Caddy:
 Caddy can be deployed as a docker container but I opted for installing directly to host per these instructions:
 https://caddyserver.com/docs/install#debian-ubuntu-raspbian
 
-I can't recommend Caddy more for a reverse proxy. Config really is that simple.
+I can't recommend Caddy more for a reverse proxy. If serving as nothing more than a reverse proxy for nightscout on port 1337, these 3 lines would suffice: 
+nightscout.domain.com {
+	reverse_proxy localhost:1337
+}
+
+Basic config really is that simple. 
 
 Authentik:
 An authorization platform is probably not as important as the reverse proxy. Deploying with docker compose was simple enough with the official instructions:
